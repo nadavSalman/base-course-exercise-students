@@ -25,6 +25,9 @@ public class SimulativeAirSituationProvider implements AirSituationProvider {
     private static final double MAX_DISTANCE = 500 ;
 
 
+
+
+
     private static final double CHANCE_FOR_NUMBER_CHANGE = 0.005;
     private static final double CHANCE_FOR_AZIMUTH_CHANGE = 0.05;
     private static int STEP_SIZE = 15;
