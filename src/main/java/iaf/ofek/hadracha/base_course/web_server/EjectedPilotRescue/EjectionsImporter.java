@@ -44,7 +44,6 @@ public class EjectionsImporter {
         this.dataBase = dataBase;
         this.listOperations = listOperations;
         executor.scheduleAtFixedRate(this::updateEjections, 1, 1, TimeUnit.SECONDS);
-
     }
 
     private void updateEjections() {
@@ -68,6 +67,10 @@ public class EjectionsImporter {
 
             addedEjections.forEach(dataBase::create);
             removedEjections.stream().map(EjectedPilotInfo::getId).forEach(id -> dataBase.delete(id, EjectedPilotInfo.class));
+
+            //---
+
+            //---
         } catch (RestClientException e) {
             System.err.println("Could not get ejections: " + e.getMessage());
             e.printStackTrace();
