@@ -22,11 +22,17 @@ public class LoginRestController {
         return new LoginDetails(clientId);
     }
 
+
+
     private class LoginDetails{
         public String clientId;
 
         public LoginDetails(String clientId) {
             this.clientId = clientId;
+        }
+
+        public String getClientId() {
+            return clientId;
         }
     }
 }
