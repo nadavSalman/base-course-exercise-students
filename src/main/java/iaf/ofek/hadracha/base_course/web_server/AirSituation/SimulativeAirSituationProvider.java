@@ -18,6 +18,13 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class SimulativeAirSituationProvider implements AirSituationProvider {
 
+    static final double PI_DIVIDE_180_DEGREES = 3.14159265359 / 180 ;
+    static final double MULTIPLICATIVE_INVERSE_OF_100000 = 0.00001 ;
+    static final double RADIAN = 180 ;
+    static final double HALF_RADIAN = RADIAN / 2 ;
+    static final double MAX_DISTANCE = 500 ;
+
+
     private static final double CHANCE_FOR_NUMBER_CHANGE = 0.005;
     private static final double CHANCE_FOR_AZIMUTH_CHANGE = 0.05;
     private static int STEP_SIZE = 15;
@@ -47,7 +54,7 @@ public class SimulativeAirSituationProvider implements AirSituationProvider {
         this.geographicCalculations = geographicCalculations;
 
         for (int i = 0; i < 80; i++) {
-            foo();
+            addVehicle();
         }
 
         executor.scheduleAtFixedRate(this::UpdateSituation, 0, SIMULATION_INTERVAL_MILLIS, TimeUnit.MILLISECONDS);
@@ -56,7 +63,7 @@ public class SimulativeAirSituationProvider implements AirSituationProvider {
     // all airplane kinds that can be used
     private List<AirplaneKind> airplaneKinds = AirplaneKind.LeafKinds();
 
-    private void foo() {
+    private void addVehicle() {
         AirplaneKind kind = airplaneKinds.get(random.nextInt(airplaneKinds.size()));
         Airplane airplane = new Airplane(kind, lastId++);
         airplane.coordinates=new Coordinates(randomGenerators.generateRandomDoubleInRange(LAT_MIN, LAT_MAX),
@@ -82,15 +89,15 @@ public class SimulativeAirSituationProvider implements AirSituationProvider {
                     airplane.radialAcceleration = calculateNewRadialAcceleration(airplane);
 
                     airplane.setAzimuth(airplane.getAzimuth() + airplane.radialAcceleration);
-                    airplane.coordinates.lat += Math.sin(worldAzimuthToEuclidRadians(airplane.getAzimuth())) * airplane.velocity / 100000;
-                    airplane.coordinates.lon += Math.cos(worldAzimuthToEuclidRadians(airplane.getAzimuth())) * airplane.velocity / 100000;
+                    airplane.coordinates.lat += Math.sin(worldAzimuthToEuclidRadians(airplane.getAzimuth())) * airplane.velocity * MULTIPLICATIVE_INVERSE_OF_100000 ;
+                    airplane.coordinates.lon += Math.cos(worldAzimuthToEuclidRadians(airplane.getAzimuth())) * airplane.velocity * MULTIPLICATIVE_INVERSE_OF_100000 ;
                     if (airplane.coordinates.lat < LAT_MIN || airplane.coordinates.lat > LAT_MAX ||
                             airplane.coordinates.lon < LON_MIN || airplane.coordinates.lon > LON_MAX)
-                        airplane.setAzimuth(airplane.getAzimuth() + 180);
+                        airplane.setAzimuth(airplane.getAzimuth() + RADIAN);
                 });
 
                 if (random.nextDouble() < CHANCE_FOR_NUMBER_CHANGE) { // chance to add an airplane
-                    foo();
+                    addVehicle();
                 }
             }
         }
@@ -110,7 +117,7 @@ public class SimulativeAirSituationProvider implements AirSituationProvider {
             }
 
             double azimuthToDestenation = geographicCalculations.azimuthBetween(currLocation, headingTo);
-            double differnceOfAzimuth = 180-geographicCalculations.normalizeAzimuth(azimuthToDestenation - airplane.getAzimuth());
+            double differnceOfAzimuth = RADIAN-geographicCalculations.normalizeAzimuth(azimuthToDestenation - airplane.getAzimuth());
 
             return (differnceOfAzimuth > 0 ? Math.min(AZIMUTH_STEP*10, differnceOfAzimuth/5) : Math.max(-AZIMUTH_STEP*10, differnceOfAzimuth/5))/2;
 
@@ -126,7 +133,7 @@ public class SimulativeAirSituationProvider implements AirSituationProvider {
     }
 
     private boolean arrivedToDestination(Coordinates currLocation, Coordinates headingTo) {
-        return geographicCalculations.distanceBetween(currLocation, headingTo) < 500;
+        return geographicCalculations.distanceBetween(currLocation, headingTo) < MAX_DISTANCE;
     }
 
     /**
@@ -134,8 +141,8 @@ public class SimulativeAirSituationProvider implements AirSituationProvider {
      * radians in which 0 is right and increases counter clockwise.
      */
     private double worldAzimuthToEuclidRadians(double azimuth) {
-        double inEuclidDegrees = -azimuth + 90;
-        return inEuclidDegrees * Math.PI / 180;
+        double inEuclidDegrees = -azimuth + HALF_RADIAN;
+        return inEuclidDegrees * PI_DIVIDE_180_DEGREES ;
     }
 
     @Override

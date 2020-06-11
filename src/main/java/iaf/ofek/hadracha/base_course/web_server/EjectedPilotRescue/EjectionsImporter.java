@@ -77,6 +77,8 @@ public class EjectionsImporter {
         }
     }
 
+
+
     private List<EjectedPilotInfo> ejectionsToRemove(List<EjectedPilotInfo> updatedEjections, List<EjectedPilotInfo> previousEjections) {
         return listOperations.subtract(previousEjections, updatedEjections, new Entity.ByIdEqualizer<>());
     }
