@@ -1,5 +1,5 @@
 /build/
 /out/
-.idea/compiler.xml
-.idea/modules/web-server.main.iml
-.idea/modules/web-server.test.iml
+/.idea
+
+
