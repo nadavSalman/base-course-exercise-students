@@ -46,37 +46,54 @@ public class EjectionsImporter {
         executor.scheduleAtFixedRate(this::updateEjections, 1, 1, TimeUnit.SECONDS);
     }
 
-    private void updateEjections() {
+    private List<EjectedPilotInfo> mikaRequest(){
         try {
-            List<EjectedPilotInfo> ejectionsFromServer;
             ResponseEntity<List<EjectedPilotInfo>> responseEntity = restTemplate.exchange(
                     EJECTION_SERVER_URL + "/ejections?name=" + NAMESPACE, HttpMethod.GET,
                     null, new ParameterizedTypeReference<List<EjectedPilotInfo>>() {
                     });
-            ejectionsFromServer = responseEntity.getBody();
-            if (ejectionsFromServer != null) {
-                for(EjectedPilotInfo ejectedPilotInfo: ejectionsFromServer) {
-                    ejectedPilotInfo.coordinates.lat += SHIFT_NORTH;
-                }
-            }
-            List<EjectedPilotInfo> updatedEjections = ejectionsFromServer;
-            List<EjectedPilotInfo> previousEjections = dataBase.getAllOfType(EjectedPilotInfo.class);
 
-            List<EjectedPilotInfo> addedEjections = ejectionsToAdd(updatedEjections, previousEjections);
-            List<EjectedPilotInfo> removedEjections = ejectionsToRemove(updatedEjections, previousEjections);
+            return responseEntity.getBody();
 
-            addedEjections.forEach(dataBase::create);
-            removedEjections.stream().map(EjectedPilotInfo::getId).forEach(id -> dataBase.delete(id, EjectedPilotInfo.class));
-
-            //---
-
-            //---
-        } catch (RestClientException e) {
-            System.err.println("Could not get ejections: " + e.getMessage());
+        }catch (RestClientException e) {
+            System.err.println("Requesr from mika fail : " + e.getMessage());
             e.printStackTrace();
+        }
+        return null;
+    }
+
+    private void AccuracyOfPilotLocationAfterEjection(List<EjectedPilotInfo> ejectionsFromServer){
+        if (ejectionsFromServer != null) {
+            for(EjectedPilotInfo ejectedPilotInfo: ejectionsFromServer) {
+                ejectedPilotInfo.coordinates.lat += SHIFT_NORTH;
+            }
         }
     }
 
+    private void ejectionData(List<EjectedPilotInfo> ejectionsFromServer){
+        List<EjectedPilotInfo> updatedEjections = ejectionsFromServer;
+        List<EjectedPilotInfo> previousEjections = dataBase.getAllOfType(EjectedPilotInfo.class);
+
+        List<EjectedPilotInfo> addedEjections = ejectionsToAdd(updatedEjections, previousEjections);
+        List<EjectedPilotInfo> removedEjections = ejectionsToRemove(updatedEjections, previousEjections);
+
+        addedEjections.forEach(dataBase::create);
+        removedEjections.stream().map(EjectedPilotInfo::getId).forEach(id -> dataBase.delete(id, EjectedPilotInfo.class));
+    }
+    private void updateEjections() {
+        try {
+            List<EjectedPilotInfo> ejectionsFromServer = mikaRequest();
+
+            AccuracyOfPilotLocationAfterEjection(ejectionsFromServer);
+
+
+            ejectionData(ejectionsFromServer);
+
+        } catch (RestClientException e) {
+            System.err.println("Could not insert data: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 
 
     private List<EjectedPilotInfo> ejectionsToRemove(List<EjectedPilotInfo> updatedEjections, List<EjectedPilotInfo> previousEjections) {
