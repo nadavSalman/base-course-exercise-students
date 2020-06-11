@@ -18,11 +18,11 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class SimulativeAirSituationProvider implements AirSituationProvider {
 
-    static final double PI_DIVIDE_180_DEGREES = 3.14159265359 / 180 ;
-    static final double MULTIPLICATIVE_INVERSE_OF_100000 = 0.00001 ;
-    static final double RADIAN = 180 ;
-    static final double HALF_RADIAN = RADIAN / 2 ;
-    static final double MAX_DISTANCE = 500 ;
+    private static final double RADIAN = 180 ;
+    private static final double PI_DIVIDE_180_DEGREES = 3.14159265359 / RADIAN ;
+    private static final double MULTIPLICATIVE_INVERSE_OF_100000 = 0.00001 ;
+    private static final double HALF_RADIAN = RADIAN / 2 ;
+    private static final double MAX_DISTANCE = 500 ;
 
 
     private static final double CHANCE_FOR_NUMBER_CHANGE = 0.005;

@@ -3,22 +3,16 @@ package iaf.ofek.hadracha.base_course.web_server.EjectedPilotRescue;
 import iaf.ofek.hadracha.base_course.web_server.Data.CrudDataBase;
 import iaf.ofek.hadracha.base_course.web_server.Data.Entity;
 import iaf.ofek.hadracha.base_course.web_server.Utilities.ListOperations;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.json.JacksonJsonParser;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -67,7 +61,7 @@ public class EjectionsImporter {
     private void AccuracyOfPilotLocationAfterEjection(List<EjectedPilotInfo> ejectionsFromServer){
         if (ejectionsFromServer != null) {
             for(EjectedPilotInfo ejectedPilotInfo: ejectionsFromServer) {
-                ejectedPilotInfo.coordinates.lat += SHIFT_NORTH;
+                ejectedPilotInfo.getCoordinates().lat += SHIFT_NORTH;
             }
         }
     }

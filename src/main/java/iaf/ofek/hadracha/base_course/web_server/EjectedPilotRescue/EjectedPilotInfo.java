@@ -11,14 +11,11 @@ public class EjectedPilotInfo implements Entity<EjectedPilotInfo> {
     private int id;
     private List<AllocatedAirplane> allocatedAirplanes = new ArrayList<>();
 
-    public Coordinates coordinates;
+    private Coordinates coordinates;
 
-    public String pilotName;
+    private String pilotName;
 
-    /**
-     * The rescue manager's client id, or null if non.
-     */
-    public String rescuedBy;
+    private String rescuedBy;
 
     @Override
     public int getId() {
@@ -41,20 +38,55 @@ public class EjectedPilotInfo implements Entity<EjectedPilotInfo> {
 
     public void allocateAirplane(Airplane airplane, String controllerClientId){
         AllocatedAirplane allocatedAirplane = new AllocatedAirplane(airplane);
-        allocatedAirplanes.add(allocatedAirplane);
-        airplane.flyTo(coordinates, controllerClientId);
+        getAllocatedAirplanes().add(allocatedAirplane);
+        airplane.flyTo(getCoordinates(), controllerClientId);
         airplane.onArrivedAtDestination(this::airplaneArrived);
     }
 
     private void airplaneArrived(Airplane airplane){
 
-        allocatedAirplanes.stream()
+        getAllocatedAirplanes().stream()
                 .filter(allocatedAirplane -> allocatedAirplane.airplane.id == airplane.id)
                 .forEach(allocatedAirplane -> allocatedAirplane.arrivedAtDestination=true);
 
-        if (allocatedAirplanes.stream().allMatch(allocatedAirplane -> allocatedAirplane.arrivedAtDestination)){
-            allocatedAirplanes.forEach(allocatedAirplane -> allocatedAirplane.airplane.unAllocate());
+        if (getAllocatedAirplanes().stream().allMatch(allocatedAirplane -> allocatedAirplane.arrivedAtDestination)){
+            getAllocatedAirplanes().forEach(allocatedAirplane -> allocatedAirplane.airplane.unAllocate());
         }
+    }
+
+    public List<AllocatedAirplane> getAllocatedAirplanes() {
+        return allocatedAirplanes;
+    }
+
+    public void setAllocatedAirplanes(List<AllocatedAirplane> allocatedAirplanes) {
+        this.allocatedAirplanes = allocatedAirplanes;
+    }
+
+    public Coordinates getCoordinates() {
+        return coordinates;
+    }
+
+    public void setCoordinates(Coordinates coordinates) {
+        this.coordinates = coordinates;
+    }
+
+    public String getPilotName() {
+        return pilotName;
+    }
+
+    public void setPilotName(String pilotName) {
+        this.pilotName = pilotName;
+    }
+
+    /**
+     * The rescue manager's client id, or null if non.
+     */
+    public String getRescuedBy() {
+        return rescuedBy;
+    }
+
+    public void setRescuedBy(String rescuedBy) {
+        this.rescuedBy = rescuedBy;
     }
 
     private class AllocatedAirplane{
