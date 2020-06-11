@@ -33,6 +33,8 @@ public class EjectionsImporter {
 
 
 
+
+
     private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     private final RestTemplate restTemplate;
     private final CrudDataBase dataBase;
