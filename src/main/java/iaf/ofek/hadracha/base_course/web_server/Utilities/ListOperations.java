@@ -33,4 +33,6 @@ public class ListOperations {
     public <T> List<T> subtract(@NotNull List<T> list1, @NotNull List<T> list2){
         return subtract(list1, list2, Objects::equals);
     }
+
+
 }

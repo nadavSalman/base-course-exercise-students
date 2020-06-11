@@ -70,8 +70,8 @@ public class EjectionsImporter {
         List<EjectedPilotInfo> updatedEjections = ejectionsFromServer;
         List<EjectedPilotInfo> previousEjections = dataBase.getAllOfType(EjectedPilotInfo.class);
 
-        List<EjectedPilotInfo> addedEjections = ejectionsToAdd(updatedEjections, previousEjections);
-        List<EjectedPilotInfo> removedEjections = ejectionsToRemove(updatedEjections, previousEjections);
+        List<EjectedPilotInfo> addedEjections = ejectionDifferance(updatedEjections, previousEjections);
+        List<EjectedPilotInfo> removedEjections = ejectionDifferance(updatedEjections, previousEjections);
 
         addedEjections.forEach(dataBase::create);
         removedEjections.stream().map(EjectedPilotInfo::getId).forEach(id -> dataBase.delete(id, EjectedPilotInfo.class));
@@ -92,11 +92,11 @@ public class EjectionsImporter {
     }
 
 
-    private List<EjectedPilotInfo> ejectionsToRemove(List<EjectedPilotInfo> updatedEjections, List<EjectedPilotInfo> previousEjections) {
-        return listOperations.subtract(previousEjections, updatedEjections, new Entity.ByIdEqualizer<>());
-    }
 
-    private List<EjectedPilotInfo> ejectionsToAdd(List<EjectedPilotInfo> updatedEjections, List<EjectedPilotInfo> previousEjections) {
+
+    private List<EjectedPilotInfo> ejectionDifferance (List<EjectedPilotInfo> updatedEjections, List<EjectedPilotInfo> previousEjections) {
         return listOperations.subtract(updatedEjections, previousEjections, new Entity.ByIdEqualizer<>());
     }
+
+
 }
